@@ -29,12 +29,29 @@ namespace SGReplayProcessor
             }
         }
         int getSubmissionNum() {
-            throw new Exception("not implemented");
+            string cs = @"server=localhost;userid=dbuser;password=s$cret;database=testdb";//change
+            using var con = new MySqlConnection(cs);
+            con.Open();
+            var isPresent = "SELECT * FROM `ReplayMessages` WHERE `playernames` LIKE `%" + playernames[0] + " " + playernames[1] + "%` AND `replayCreated` LIKE `" + replayCreated.Substring(0, 17) + "%` OR `playernames` LIKE `%" + playernames[1] + " " + playernames[0] + "%` AND `replayCreated` LIKE `" + replayCreated.Substring(0, 17) + "%`;";
+            var stm = tableInsertString();
+            var cmd = new MySqlCommand(isPresent, con);
+
+            var rowsAffected = cmd.ExecuteReader();
+            bool contained = rowsAffected.Read();
+            if (contained)
+            {
+                string getSubmissionNum = "SELECT MAX(`submission`) FROM `ReplayMessages` WHERE `id` = "+id;
+                cmd = new MySqlCommand(getSubmissionNum, con);
+
+                return ((int)cmd.ExecuteReader().GetValue(0))+1;
+            }
+            else { 
+            return 0;
+            }
         }
         public bool addToDB() {
             this.submissionNum = getSubmissionNum();
             string cs = @"server=localhost;userid=dbuser;password=s$cret;database=testdb";//change
-
             using var con = new MySqlConnection(cs);
             con.Open();
             var isPresent = "SELECT * FROM `ReplayMessages` WHERE `playernames` LIKE `%" + playernames[0] + " " + playernames[1] + "%` AND `replayCreated` LIKE `" + replayCreated.Substring(0, 17) + "%` OR `playernames` LIKE `%" + playernames[1] + " " + playernames[0] + "%` AND `replayCreated` LIKE `" + replayCreated.Substring(0, 17) + "%`;";
