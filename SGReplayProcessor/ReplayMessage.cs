@@ -4,11 +4,12 @@ using MySql.Data.MySqlClient;
 
 namespace SGReplayProcessor
 {
+
     public class ReplayMessage
     {
-        public readonly string tableDropString = "DROP TABLE IF EXISTS `ReplayMessages`;";
+        public string tableDropString() { return "DROP TABLE IF EXISTS `ReplayMessages`;"; }
 
-        public readonly string tableCreateString = "CREATE TABLE `ReplayMessages` (`replayCreated`	varchar(300),`playernames`	varchar(300),`rnddata`	VARBINARY(268000),`inidata`	varchar(300),`id`	varchar(300),'submission'   bigint unsigned,`resolved`	boolean,`winner`  varchar(300));";
+        public string tableCreateString() { return "CREATE TABLE `ReplayMessages` (`replayCreated`	varchar(300),`playernames`	varchar(300),`rnddata`	VARBINARY(268000),`inidata`	varchar(300),`id`	varchar(300),'submission'   bigint unsigned,`resolved`	boolean,`winner`  varchar(300));"; }
 
         public string tableInsertString() {return "INSERT INTO `ReplayMessages` (`replayCreated`, `playernames`, `rnddata`, `inidata`, `id`, `resolved`, `winner`) VALUES(`" + this.replayCreated + "`, `" + this.playernames[0] + " " + this.playernames[1] + "', '" + Google.Protobuf.ByteString.CopyFrom(this.rnddata) + "', '" + this.inidata + "', '', FALSE, '');"; }
         public DateTime getCreationTime() {
