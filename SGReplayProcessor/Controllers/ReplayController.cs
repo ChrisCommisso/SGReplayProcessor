@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace SGReplayProcessor.Controllers
 {
+    
     [ApiController]
     [Route("replay")]
     public class ReplayController : ControllerBase
@@ -23,6 +24,7 @@ namespace SGReplayProcessor.Controllers
         public bool Post(ReplayMessage replayMessage)
         {
             _logger.LogTrace("attempting to add replay: "+replayMessage);
+            ///
             bool success = replayMessage.addToDB();
             _logger.LogDebug("add success: " + success);
             return success;
