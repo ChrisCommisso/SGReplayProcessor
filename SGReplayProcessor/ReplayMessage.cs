@@ -7,12 +7,13 @@ namespace SGReplayProcessor
     [Serializable]
     public class ReplayMessage
     {
+        
         public ReplayMessage() { 
         
         } 
         public static void tableBackup(MySqlConnection _con) {
-            //var cmd = new MySqlCommand(tableBackupString(), _con);
-            //cmd.ExecuteNonQuery();
+            var cmd = new MySqlCommand(tableBackupString(), _con);
+            cmd.ExecuteNonQuery();
         }
         public static void tableRefresh(MySqlConnection _con) { 
 
@@ -91,6 +92,15 @@ namespace SGReplayProcessor
                 tableInsert(con3);
             }
             return !contained;
+        }
+        public ReplayMessage(string[] playernames, string replaycreated, byte[] rnddata, string inidata, string id, ulong submissionNum, bool resolved, string winner) { 
+        this.winner = winner;
+        this.playernames = playernames;
+        this.resolved = resolved;
+        this.inidata = inidata;
+        this.rnddata = rnddata;
+        this.submissionNum = submissionNum;
+        this.id = id;
         }
         public string replayCreated;
         public string[] playernames;

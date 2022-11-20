@@ -22,6 +22,90 @@ namespace SGReplayProcessor.Controllers
             _logger = logger;
         }
 
+        [HttpGet(Name = "GetReplayMessages")]
+        public string Get() {
+            
+            
+            Microsoft.AspNetCore.Http.IFormCollection form;
+            form = ControllerContext.HttpContext.Request.Form;
+            Microsoft.Extensions.Primitives.StringValues playernames;
+            
+            Microsoft.Extensions.Primitives.StringValues id;
+           
+            Microsoft.Extensions.Primitives.StringValues submission;
+            
+            Microsoft.Extensions.Primitives.StringValues replayCreated;
+            
+            string str = "";
+            if (form.TryGetValue("playernames", out playernames)) {
+                string[] dirtyString = JsonConvert.DeserializeObject<string[]>(playernames.ToString());
+                string[] cleanstring = { "", "" };
+                for (int i = 0; i < 2; i++) {
+                    cleanstring[i] = new String(dirtyString[i].Where(Char.IsLetterOrDigit).ToArray());
+                }
+                str += "SELECT * FROM `ReplayMessages` WHERE player1 LIKE '" + cleanstring[0] + "%' AND player2 LIKE '" + cleanstring[1] + "%'";
+            }
+            if (form.TryGetValue("id", out id))
+            {
+                if (str.Length > 0) {
+                    str += " UNION ";
+                }
+                string dirtyString = JsonConvert.DeserializeObject<string>(id.ToString());
+                string cleanstring = "";
+                
+                    cleanstring = new String(dirtyString.Where(Char.IsLetterOrDigit).ToArray());
+                
+                str += "SELECT * FROM `ReplayMessages` WHERE id = '"+cleanstring+"'";
+            }
+            if (form.TryGetValue("submissionnum", out submission))
+            {
+                if (str.Length > 0)
+                {
+                    str += " UNION ";
+                }
+                string dirtyString = JsonConvert.DeserializeObject<string>(submission.ToString());
+                string cleanstring = "";
+
+                cleanstring = new String(dirtyString.Where(Char.IsLetterOrDigit).ToArray());
+
+                str += "SELECT * FROM `ReplayMessages` WHERE submission = " + cleanstring + "";
+            }
+            if (form.TryGetValue("replayCreated", out replayCreated))
+            {
+                if (str.Length > 0)
+                {
+                    str += " UNION ";
+                }
+                string dirtyString = JsonConvert.DeserializeObject<string>(replayCreated.ToString());
+                string cleanstring = "";
+
+                cleanstring = new String(dirtyString.Where(Char.IsLetterOrDigit).ToArray());
+
+                str += "SELECT * FROM `ReplayMessages` WHERE replayCreated = " + cleanstring + "";
+            }
+            str += ";";
+            string cs = @"server=localhost;userid=root;password=VictoryOverEvil8610;database=replaydatabase";//change
+            var con = new MySqlConnection(cs);
+            con.Open();
+            var cmd = new MySqlCommand(str, con);
+            MySqlDataReader values = cmd.ExecuteReader();
+            List<ReplayMessage> messages = new List<ReplayMessage>();
+            while (values.Read()) {
+                ReplayMessage message = new ReplayMessage();
+                message.playernames = new string[]{"",""};
+                message.replayCreated = (string)values.GetValue(0);
+                message.playernames[0] = (string)values.GetValue(1);
+                message.playernames[1] = (string)values.GetValue(2);
+                message.rnddata = (byte[])values.GetValue(3);
+                message.inidata = (string)values.GetValue(4);
+                message.id = (string)values.GetValue(5);
+                message.submissionNum = (ulong)values.GetValue(6);
+                message.resolved = (bool)values.GetValue(7);
+                message.winner = (string)values.GetValue(8);
+                messages.Add(message);
+            }
+            return JsonConvert.SerializeObject(messages);
+        }
         [HttpPost(Name = "PostReplayMessage")]
         public async Task<string> Post()
         {
