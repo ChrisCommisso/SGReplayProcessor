@@ -55,9 +55,9 @@ namespace SGReplayProcessor
                 throw new Exception("the replay datetime was incorrectly formatted");
             }
         }
-        int getSubmissionNum(MySqlConnection con, MySqlConnection con1) {
+        ulong getSubmissionNum(MySqlConnection con, MySqlConnection con1) {
             
-            var isPresent = "SELECT * FROM `ReplayMessages` WHERE ((`player1` = '"+playernames[0]+ "' AND `player2` = '" + playernames[1] + "') OR (`player1` = '" + playernames[1] + "' AND `player2` = '" + playernames[0] + "')) AND `replayCreated` LIKE '" + replayCreated.Substring(0, 17) + "%';";
+            var isPresent = "SELECT * FROM `ReplayMessages` WHERE id = '"+ this.id+"'";
             
             var cmd = new MySqlCommand(isPresent, con);
 
@@ -66,10 +66,12 @@ namespace SGReplayProcessor
            
             if (contained)
             {
-                string getSubmissionNum = "SELECT MAX(`submission`) FROM `ReplayMessages` WHERE `id` = "+id;
+                string getSubmissionNum = "SELECT MAX(submission) FROM `ReplayMessages` WHERE id = '"+id+"'";
                 cmd = new MySqlCommand(getSubmissionNum, con1);
-
-                return ((int)cmd.ExecuteReader().GetValue(0))+1;
+                var reader = cmd.ExecuteReader();
+                reader.Read();
+                
+                return (((ulong)reader.GetValue(0))+1);
             }
             else { 
             return 0;
@@ -95,7 +97,7 @@ namespace SGReplayProcessor
         public string rnddata;
         public string inidata;
         public string id;//submittersteamid
-        public int submissionNum;//submission number
+        public ulong submissionNum;//submission number
         public bool resolved;
         public string winner;
     }
