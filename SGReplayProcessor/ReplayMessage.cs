@@ -94,7 +94,7 @@ namespace SGReplayProcessor
         }
         public string replayCreated;
         public string[] playernames;
-        public string rnddata;
+        public byte[] rnddata;
         public string inidata;
         public string id;//submittersteamid
         public ulong submissionNum;//submission number

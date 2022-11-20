@@ -45,7 +45,7 @@ namespace SGReplayProcessor.Controllers
                 {
                     form.Files[0].CopyTo(ms);
                     var fileBytes = ms.ToArray();
-                    replayMessage.rnddata = System.Text.Encoding.Latin1.GetString(fileBytes);
+                    replayMessage.rnddata = fileBytes;
                     // act on the Base64 data
                 }
             }
