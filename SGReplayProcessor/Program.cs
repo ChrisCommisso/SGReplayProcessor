@@ -1,8 +1,14 @@
 using ApiMultiPartFormData;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+void run_py(string cmd)
+{
+    var strCmdText = "python " + cmd;
+    System.Diagnostics.Process.Start("CMD.exe", strCmdText);
+}
 
 builder.Services.AddControllers(options =>
 {
@@ -13,7 +19,12 @@ builder.Services.AddControllers(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+run_py("AutomatedSkugsReplay.py");
+builder.Services.AddAuthentication();
+           
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -24,7 +35,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+
 app.UseAuthorization();
+
+
 
 app.MapControllers();
 

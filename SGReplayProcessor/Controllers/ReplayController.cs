@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
+using System.Diagnostics;
 
 namespace SGReplayProcessor.Controllers
 {
@@ -10,10 +11,16 @@ namespace SGReplayProcessor.Controllers
     [Route("replay")]
     public class ReplayController : ControllerBase
     {
+        private void run_py(string cmd, string args)
+        {
+            var strCmdText = "python "+cmd;
+            System.Diagnostics.Process.Start("CMD.exe", strCmdText);
+        }
+
         private static readonly string[] Summaries = new[]
         {
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+        };
 
         private readonly ILogger<ReplayController> _logger;
 
@@ -144,6 +151,7 @@ namespace SGReplayProcessor.Controllers
                 }
             }
             replayMessage.playernames = JsonConvert.DeserializeObject<string[]>(playernames.ToString());
+            
             replayMessage.id = JsonConvert.DeserializeObject<string>(id.ToString()); ;
             replayMessage.submissionNum = ulong.Parse(JsonConvert.DeserializeObject<string>(submission.ToString()));
             //ReplayMessage message = JsonConvert.DeserializeObject<ReplayMessage>();
