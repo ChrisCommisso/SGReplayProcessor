@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Net.Http;
 
 namespace SGReplayProcessor.Controllers
 {
@@ -11,11 +12,7 @@ namespace SGReplayProcessor.Controllers
     [Route("replay")]
     public class ReplayController : ControllerBase
     {
-        private void run_py(string cmd, string args)
-        {
-            var strCmdText = "python "+cmd;
-            System.Diagnostics.Process.Start("CMD.exe", strCmdText);
-        }
+        
 
         private static readonly string[] Summaries = new[]
         {
