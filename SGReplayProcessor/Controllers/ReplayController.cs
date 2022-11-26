@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using System.Net.Http;
 
 namespace SGReplayProcessor.Controllers
 {
