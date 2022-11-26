@@ -2,6 +2,7 @@ using ApiMultiPartFormData;
 using System.Timers;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,17 +13,18 @@ client.DefaultRequestHeaders.Accept.Add(
     new MediaTypeWithQualityHeaderValue("*/*"));
 client.DefaultRequestHeaders.Add("User-Agent", "ReplayProcessor");
 
-await ProcessRepositoriesAsync(client);
-
-static async Task<HttpResponseMessage> ProcessRepositoriesAsync(HttpClient client)
+static async Task<HttpResponseMessage> ProcessReplaysAsync(HttpClient client)
 {
     return client.PostAsync("http://localhost:8080/", null).GetAwaiter().GetResult();
 }
 // Add services to the container.
 void run_py(string cmd)
 {
-    var strCmdText = "python " + cmd;
-    System.Diagnostics.Process.Start("CMD.exe", strCmdText);
+    var strCmdText = "/k python " + cmd;
+    var psi = new ProcessStartInfo("cmd.exe");
+    psi.UseShellExecute = true;
+    psi.Arguments = strCmdText;
+    Process.Start(psi);
 }
 
 builder.Services.AddControllers(options =>
@@ -46,7 +48,7 @@ void OnTimedEvent(object source, ElapsedEventArgs e)
     }
 
 }
-run_py("AutomatedSkugsReplay.py");
+run_py(@"AutomatedSkugsReplay.py");
 builder.Services.AddAuthentication();
            
 var app = builder.Build();
