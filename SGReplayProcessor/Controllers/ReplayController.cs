@@ -112,20 +112,32 @@ namespace SGReplayProcessor.Controllers
         [HttpPost(Name = "PostReplayMessage")]
         public async Task<string> Post()
         {
-            Microsoft.AspNetCore.Http.IFormCollection form;
+            IFormCollection form;
             form = ControllerContext.HttpContext.Request.Form;
             ReplayMessage replayMessage = new ReplayMessage();
             
             Microsoft.Extensions.Primitives.StringValues playernames;
-            form.TryGetValue("playernames", out playernames);
+            if (form.TryGetValue("playernames", out playernames)) {
+                replayMessage.playernames = JsonConvert.DeserializeObject<string[]>(playernames.ToString());
+                playernames = new String[] { new String(replayMessage.playernames[0].Where(Char.IsLetterOrDigit).ToArray()), new String(replayMessage.playernames[1].Where(Char.IsLetterOrDigit).ToArray())};
+            }
+            
             Microsoft.Extensions.Primitives.StringValues id;
-            form.TryGetValue("id", out id);
+            if (form.TryGetValue("id", out id)) {
+                replayMessage.id = JsonConvert.DeserializeObject<string>(id.ToString());
+                replayMessage.id = new String(replayMessage.id.Where(Char.IsLetterOrDigit).ToArray());
+            }
             Microsoft.Extensions.Primitives.StringValues submission;
-            form.TryGetValue("submissionnum", out submission);
+            if (form.TryGetValue("submissionnum", out submission)) {
+                ulong.TryParse(JsonConvert.DeserializeObject<string>(submission.ToString()),out replayMessage.submissionNum);
+            }
             Microsoft.Extensions.Primitives.StringValues replayCreated;
-            form.TryGetValue("replayCreated", out replayCreated);
+            if (form.TryGetValue("replayCreated", out replayCreated)) {
+                replayMessage.replayCreated = JsonConvert.DeserializeObject<string>(replayCreated.ToString());
+                replayMessage.replayCreated.Replace("\'", "").Replace("\"", "");
+            }
             replayMessage.winner = "";
-            replayMessage.replayCreated = JsonConvert.DeserializeObject<string>(replayCreated.ToString());
+            
             if (form.Files[0].Length > 0)
             {
                 using (var ms = new MemoryStream())
@@ -142,15 +154,11 @@ namespace SGReplayProcessor.Controllers
                 {
                     form.Files[1].CopyTo(ms);
                     var fileBytes = ms.ToArray();
-                    replayMessage.inidata = System.Text.Encoding.Latin1.GetString(fileBytes);
+                    replayMessage.inidata = System.Text.Encoding.Latin1.GetString(fileBytes).Replace("\'", "").Replace("\"", "");
                     // act on the Base64 data
                 }
             }
-            replayMessage.playernames = JsonConvert.DeserializeObject<string[]>(playernames.ToString());
             
-            replayMessage.id = JsonConvert.DeserializeObject<string>(id.ToString()); ;
-            replayMessage.submissionNum = ulong.Parse(JsonConvert.DeserializeObject<string>(submission.ToString()));
-            //ReplayMessage message = JsonConvert.DeserializeObject<ReplayMessage>();
             _logger.LogTrace("attempting to add replay: " + replayMessage);
             string cs = @"server=localhost;userid=root;password=VictoryOverEvil8610;database=replaydatabase";//change
             var con = new MySqlConnection(cs);
