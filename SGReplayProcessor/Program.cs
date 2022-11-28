@@ -37,14 +37,20 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 var aTimer = new System.Timers.Timer(1000); //One second, (use less to add precision, use more to consume less processor time
 int lastHour = DateTime.Now.Hour;
-aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+aTimer.Elapsed += new ElapsedEventHandler((object o,ElapsedEventArgs t) => {
+    Task.Run(() =>
+    {
+        OnTimedEventAsync(o, t);
+    });
+    
+});
 aTimer.Start();
-void OnTimedEvent(object source, ElapsedEventArgs e)
+void OnTimedEventAsync(object source, ElapsedEventArgs e)
 {
     if (lastHour < DateTime.Now.Hour || (lastHour == 23 && DateTime.Now.Hour == 0))
     {
         lastHour = DateTime.Now.Hour;
-        
+        ProcessReplaysAsync(client).RunSynchronously();
     }
 
 }
@@ -54,7 +60,10 @@ builder.Services.AddAuthentication();
 var app = builder.Build();
 
 
-
+Task.Run(async () => {
+    Thread.Sleep(45000);
+    await ProcessReplaysAsync(client);
+});
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
